@@ -3,6 +3,7 @@ package main
 import (
 	"userAuth/controllers"
 	"userAuth/initializers"
+	"userAuth/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -25,6 +26,7 @@ func main() {
 
     r.POST("/signup",controllers.Signup) 
     r.POST("/login", controllers.Login)
+    r.GET("/validate",middleware.RequireAuth, controllers.Validate)
     r.Run() // By default it serves on :8080 unless a PORT environment variable was defined.
 }
 

@@ -1,15 +1,15 @@
 package controllers
 
 import (
-    "net/http"
-    "os"
-    "time"
-    "userAuth/initializers"
-    "userAuth/models" // Assuming you have a models package with a User struct
+	"net/http"
+	"os"
+	"time"
+	"userAuth/initializers"
+	"userAuth/models" // Assuming you have a models package with a User struct
 
-    "github.com/gin-gonic/gin"
-    "github.com/golang-jwt/jwt/v4"
-    "golang.org/x/crypto/bcrypt"
+	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v4"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func Signup(c *gin.Context) {
@@ -87,7 +87,7 @@ func Login(c *gin.Context) {
 
     token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
         "sub": user.ID,
-        "exp": time.Now().Add(time.Hour * 24 * 30).Unix(),
+        "exp": time.Now().Add(time.Hour).Unix(),
     })
     tokenString, err := token.SignedString([]byte(os.Getenv("SECRET")))
     if err != nil {
@@ -97,8 +97,16 @@ func Login(c *gin.Context) {
         return
     }
 
-    c.JSON(http.StatusOK, gin.H{
-        "token": tokenString,
-    })
+    c.SetSameSite(http.SameSiteLaxMode)
+    c.SetCookie("Authorization", tokenString, 3600, "", "", false, true)
+
+
+    c.JSON(http.StatusOK, gin.H{})
 }
 
+func Validate(c *gin.Context) {
+    user, _ := c.Get("user")
+    c.JSON(http.StatusOK, gin.H{
+        "message": user,
+    })
+}
